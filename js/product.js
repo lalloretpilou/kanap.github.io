@@ -1,7 +1,7 @@
 getProducts()
 creationProducts()
 
-function getIdProduct(){
+function getIdProduct() {
     var url = new URL(window.location.href);
     var productID = new URLSearchParams(url.search);
     var id = productID.get('id');
@@ -39,7 +39,7 @@ async function creationProducts() {
             let description = document.getElementById("description");
             description.innerHTML = product.description;
 
-            let inputSelectColor = document.getElementById("colors") 
+            let inputSelectColor = document.getElementById("colors")
 
             for (let i = 0; i < product.colors.length; i++) {
                 let colorOption = document.createElement("option");
@@ -48,8 +48,6 @@ async function creationProducts() {
                 colorOption.innerHTML = colorName;
                 inputSelectColor.appendChild(colorOption);
             }
-
-
         })
         .catch(function (error) {
             return error;
@@ -59,31 +57,60 @@ async function creationProducts() {
 let addToCartBtn = document.getElementById("addToCart");
 addToCartBtn.addEventListener("click", addCart);
 
+  function idExists(monPanier) {
 
-function addCart () {
+    for (let i = 0; i < monPanier.length; i++)
+    {
+        console.log(monPanier[i].Color)
+        if (getIdProduct() == monPanier[i].Id &&
+        document.querySelector("#colors").value == monPanier[i].Color) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+  }
 
-    let productCart = JSON.parse(localStorage.getItem("cart"));
+function addCart() {
+
+    let monPanier = JSON.parse(localStorage.getItem("panier"))
 
     let CurrentProduct = {
-        Id : getIdProduct(),
-        Color : document.querySelector("#colors").value,
-        Quantity : document.querySelector("#quantity").value,
+        Id: getIdProduct(),
+        Color: document.querySelector("#colors").value,
+        Quantity: document.querySelector("#quantity").value,
         Name: document.querySelector("#title").textContent,
         price: document.querySelector("#price").textContent
     };
+    if (checkProductInput() && !idExists(monPanier)) {
 
-    if (document.querySelector("#quantity").value == 0 || 
-    document.querySelector("#colors").value == 0) {
-    alert("Merci de mettre une quantité");
+        console.log(monPanier)
+        if (monPanier) {
+            let productCart = JSON.parse(localStorage.getItem("panier"));
+
+            monPanier.push(CurrentProduct);
+            localStorage.setItem("panier", JSON.stringify(monPanier));
+        }
+
+        else {
+            monPanier = [];
+            monPanier.push(CurrentProduct);
+            localStorage.setItem("panier", JSON.stringify(monPanier));
+            console.log(monPanier)
+            alert("Votre article est dans votre panier !");
+        }
+    }
+}
+
+function checkProductInput() {
+
+    if (document.querySelector("#quantity").value != 0 &&
+        document.querySelector("#colors").value != 0) {
+        return true;
     }
     else {
-    productCart.push(CurrentProduct);
-
-    let objCart = JSON.stringify(productCart);
-    localStorage.setItem("cart", objCart);
-
-    console.log(productCart)
-    alert("Votre article est dans votre panier !");
-
+        alert("Merci de completer les champs avant d'ajouter au panier.");
+        return false
     }
 }
