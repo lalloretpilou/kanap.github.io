@@ -1,5 +1,7 @@
 getProducts()
 creationProducts()
+let imageSRC;
+let imageALT;
 
 function getIdProduct() {
     var url = new URL(window.location.href);
@@ -15,7 +17,6 @@ async function getProducts() {
     var id = productID.get('id');
 
     let urlProductDetails = 'http://localhost:3000/api/products/' + id
-    //console.log(urlProductDetails);
     let products = await fetch(urlProductDetails);
     return products.json();
 }
@@ -23,12 +24,12 @@ async function getProducts() {
 async function creationProducts() {
     let result = await getProducts()
         .then((product) => {
-            //console.log(product)
-
             let image = document.createElement("img");
             document.querySelector(".item__img").appendChild(image);
             image.src = product.imageUrl;
             image.alt = product.altTxt;
+            imageSRC = product.imageUrl;
+            imageALT = product.altTxt;
 
             let name = document.getElementById("title");
             name.innerHTML = product.name;
@@ -39,7 +40,7 @@ async function creationProducts() {
             let description = document.getElementById("description");
             description.innerHTML = product.description;
 
-            let inputSelectColor = document.getElementById("colors")
+            let inputSelectColor = document.getElementById("colors");
 
             for (let i = 0; i < product.colors.length; i++) {
                 let colorOption = document.createElement("option");
@@ -59,17 +60,13 @@ addToCartBtn.addEventListener("click", addCart);
 
   function idExists(monPanier) {
 
-    for (let i = 0; i < monPanier.length; i++)
-    {
-        console.log(monPanier[i].Color)
-        if (getIdProduct() == monPanier[i].Id &&
-        document.querySelector("#colors").value == monPanier[i].Color) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    const result = monPanier.filter(article => article.id == getIdProduct() 
+    && article.color == document.querySelector("#colors").value);
+
+    if (result.length > 0) {
+        alert("L'article est déjà dans le panier.");  
     }
+    return result;
   }
 
 function addCart() {
@@ -77,32 +74,38 @@ function addCart() {
     let monPanier = JSON.parse(localStorage.getItem("panier"))
 
     let CurrentProduct = {
-        Id: getIdProduct(),
-        Color: document.querySelector("#colors").value,
-        Quantity: document.querySelector("#quantity").value,
-        Name: document.querySelector("#title").textContent,
-        price: document.querySelector("#price").textContent
+        id: getIdProduct(),
+        color: document.querySelector("#colors").value,
+        quantity: document.querySelector("#quantity").value,
+        name: document.querySelector("#title").textContent,
+        price: document.querySelector("#price").textContent,
+        image: imageSRC,
+        imageAlt: imageALT
+
     };
-    if (checkProductInput() && !idExists(monPanier)) {
+    if (checkProductInput() && idExists(monPanier).length == 0) {
 
-        console.log(monPanier)
+        //console.log(monPanier)
         if (monPanier) {
-            let productCart = JSON.parse(localStorage.getItem("panier"));
+                let productCart = JSON.parse(localStorage.getItem("panier"));
 
-            monPanier.push(CurrentProduct);
-            localStorage.setItem("panier", JSON.stringify(monPanier));
+                monPanier.push(CurrentProduct);
+                localStorage.setItem("panier", JSON.stringify(monPanier)); 
+                alert("L'article a bien été ajouté dans le panier.");  
         }
 
         else {
             monPanier = [];
             monPanier.push(CurrentProduct);
             localStorage.setItem("panier", JSON.stringify(monPanier));
-            console.log(monPanier)
             alert("Votre article est dans votre panier !");
         }
     }
 }
-
+function clearKart ()
+{
+    monPanier = [];
+}
 function checkProductInput() {
 
     if (document.querySelector("#quantity").value != 0 &&
