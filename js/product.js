@@ -58,16 +58,29 @@ async function creationProducts() {
 let addToCartBtn = document.getElementById("addToCart");
 addToCartBtn.addEventListener("click", addCart);
 
-  function idExists(monPanier) {
-
-    const result = monPanier.filter(article => article.id == getIdProduct() 
+function checkDuplicateProduct(monPanier)
+{
+    const result = monPanier.filter(article => article.id == getIdProduct()
     && article.color == document.querySelector("#colors").value);
 
     if (result.length > 0) {
-        alert("L'article est déjà dans le panier.");  
+        return true;
     }
-    return result;
-  }
+    else {
+        return false;
+    }
+}
+function idExists(monPanier) {
+
+
+        const result = monPanier.find(article => article.id == getIdProduct()
+            && article.color == document.querySelector("#colors").value);
+        if (result) {
+            let newQuanty = parseInt(document.querySelector("#quantity").value) + parseInt(result.quantity);
+            result.quantity = newQuanty;
+            localStorage.setItem('panier', JSON.stringify(monPanier));
+        }
+}
 
 function addCart() {
 
@@ -83,15 +96,19 @@ function addCart() {
         imageAlt: imageALT
 
     };
-    if (checkProductInput() && idExists(monPanier).length == 0) {
+    if (checkProductInput()) {
 
-        //console.log(monPanier)
         if (monPanier) {
+            if (!checkDuplicateProduct(monPanier)) {
                 let productCart = JSON.parse(localStorage.getItem("panier"));
-
                 monPanier.push(CurrentProduct);
-                localStorage.setItem("panier", JSON.stringify(monPanier)); 
-                alert("L'article a bien été ajouté dans le panier.");  
+                localStorage.setItem("panier", JSON.stringify(monPanier));
+                alert("L'article a bien été ajouté dans le panier.");
+            }
+            else {
+                idExists(monPanier);
+                alert("La quantité a été mise à jour.");
+            }
         }
 
         else {
@@ -101,9 +118,11 @@ function addCart() {
             alert("Votre article est dans votre panier !");
         }
     }
+    else {
+
+    }
 }
-function clearKart ()
-{
+function clearcart() {
     monPanier = [];
 }
 function checkProductInput() {

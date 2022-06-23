@@ -133,80 +133,99 @@ function dispPrice(totalPrice) {
     productTotalQuantity.innerHTML = totalPrice;
 }
 
-let addToCartBtn = document.getElementById("order");
-addToCartBtn.addEventListener("click", checkForm);
+
+
 
 function purchaseData(monPanier) {
-    const contact = {
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        address: document.getElementById('address').value,
-        city: document.getElementById('city').value,
-        email: document.getElementById('email').value
-    }
-    let products = [];
-    for (let i = 0; i < monPanier.length; i++) {
-        products.push(monPanier[i].id);
-    }
+    let makePurchaseBtn = document.getElementById("order");
+    makePurchaseBtn.addEventListener("click", (makePurchase) => {
+        makePurchase.preventDefault();
 
-    const commandBody = {
-        contact,
-        products
-    };
-    return (commandBody);
-}
-function checkForm() {
-    if (validateAdress() && validateEmail() && validateStr()) {
-        const options = {
-            method: 'POST',
-            body: JSON.stringify(purchaseData(monPanier)),
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        const contact = {
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            email: document.getElementById('email').value
+        }
+        let products = [];
+        for (let i = 0; i < monPanier.length; i++) {
+            products.push(monPanier[i].id);
+        }
+
+        const commandBody = {
+            contact,
+            products
         };
-
-        fetch("http://localhost:3000/api/products/order", options)
-            .then(response => response.json())
-            .then(data => {
-                localStorage.setItem('orderId', data.orderId);
-                document.location.href = 'confirmation.html?id=' + data.orderId;
-            });
-    }
-    else {
-        alert("Vueillez verifier les champs.")
-    }
+        validateAddress();
+        validateStr();
+        validateEmail();
+        if (validateEmail() && validateAddress() && validateStr()) {
+            fetch('http://localhost:3000/api/products/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(commandBody),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    localStorage.setItem('orderId', data.orderId);
+                    document.location.href = 'confirmation.html?id=' + data.orderId;
+                });
+        }
+    });
 }
+purchaseData(monPanier);
 
-function validateAdress() {
-    var Adress = document.getElementById('address').value;
+function validateAddress() {
+    var Address = document.getElementById('address').value;
     var AdressRGEX = /^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+/;
+    const orderId = document.getElementById('addressErrorMsg');
+    console.log("toto");
 
-    var AdressResult = AdressRGEX.test(Adress);
-    return (AdressResult);
+    if (AdressRGEX.test(Address)) {
+        orderId.innerHTML = '';
+    } else {
+        orderId.innerHTML = 'Veuillez renseigner votre adresse postale correcte.';
+    }
+    return (AdressRGEX.test(Address));
 }
 
 function validateEmail() {
     var Email = document.getElementById('email').value;
     var emailRGEX = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
 
-    var emailResult = emailRGEX.test(Email);
-    return (emailResult);
+    if (emailRGEX.test(Email)) {
+        emailErrorMsg.innerHTML = '';
+    } else {
+        emailErrorMsg.innerHTML = 'Veuillez renseigner votre email.';
+    }
+
+    return (emailRGEX.test(Email));
 }
 
 function validateStr() {
-    var lastName = document.getElementById('email').value;
-    var firstName = document.getElementById('email').value;
-    var city = document.getElementById('email').value;
+    var lastName = document.getElementById('lastName').value;
+    var firstName = document.getElementById('firstName').value;
+    var city = document.getElementById('city').value;
     var strRGEX = /^[a-zA-Z ,.'-]+$/;
 
-    var lastNameResult = strRGEX.test(lastName);
-    var firstNameResult = strRGEX.test(firstName);
-    var cityResult = strRGEX.test(city);
+    const lastNameErr = document.getElementById('lastNameErrorMsg');
+    const firstNameErr = document.getElementById('firstNameErrorMsg');
+    const cityErr = document.getElementById('cityErrorMsg');
 
-    if (lastNameResult && firstNameResult && cityResult) {
+
+    if (strRGEX.test(lastName) || strRGEX.test(firstName) || strRGEX.test(city)) {
+        lastNameErr.innerHTML = '';
+        firstNameErr.innerHTML = '';
+        cityErr.innerHTML = '';
         return (true);
-    }
-    else {
+    } else {
+        lastNameErr.innerHTML = "Votre saisie n'est pas correct.";
+        firstNameErr.innerHTML = "Votre saisie n'est pas correct.";
+        cityErr.innerHTML = "Votre saisie n'est pas correct.";
+
         return (false);
     }
 }
