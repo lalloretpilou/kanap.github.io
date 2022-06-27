@@ -1,23 +1,23 @@
-//import regex from 'js/REGEX.js';
+
 
 let monPanier = JSON.parse(localStorage.getItem("panier"));
 
 let totalQuantity = 0;
 let totalPrice = 0;
 
-checkCart(monPanier)
+dispCart(monPanier)
 
 function checkCart(monPanier) {
 
     if (monPanier.length === 0) {
-        alert("paniervide")
         return false
     }
     else {
         dispCart(monPanier)
     }
 }
-
+// Cette fonction permet d'afficher le panier. 
+// J'ai séparé le processus en plusieurs fonctions afin de faciliter à la fois le codage et la maintenance du code.
 function dispCart(monPanier) {
 
     for (let i = 0; i < monPanier.length; i++) {
@@ -38,7 +38,7 @@ function dispCart(monPanier) {
         dispPrice(totalPrice)
     }
 }
-
+// Affichage  de l'image et de la description du produit.
 function setImageProduct(product, i) {
 
     let currentProduct = document.createElement("div");
@@ -48,11 +48,9 @@ function setImageProduct(product, i) {
     let currentProductImage = document.createElement("img");
     currentProduct.appendChild(currentProductImage);
     currentProductImage.src = monPanier[i].image;
-    let currentProductImageAlt = document.createElement("alt");
-    currentProduct.appendChild(currentProductImageAlt);
-    currentProductImageAlt.imageAlt = monPanier[i].imageAlt;
+    currentProductImage.alt = monPanier[i].imageAlt;
 }
-
+// Affichage des informations du produit. titre, couleur, prix.
 function setHeaderProduct(product, i) {
     let currentProduct = document.createElement("div");
     product.appendChild(currentProduct);
@@ -72,7 +70,8 @@ function setHeaderProduct(product, i) {
     currentProductHeaderInfoDiv.appendChild(currentProductPrice);
     currentProductPrice.innerHTML = monPanier[i].price + "€";
 }
-
+// Affichage de la quantité dans un champs de saisie afin de pouvoir la modifier.
+// La quantité actuelle prend la place du placeHolder
 function setQuantityProduct(product, i) {
     let currentProduct = document.createElement("div");
     product.appendChild(currentProduct);
@@ -101,6 +100,7 @@ function setQuantityProduct(product, i) {
     });
 
 }
+// Affichage du bouton supprimer
 function deleteProductButton(product, i) {
     let currentProduct = document.createElement("div");
     product.appendChild(currentProduct);
@@ -114,15 +114,17 @@ function deleteProductButton(product, i) {
     deleteCurrentProduct.appendChild(currentProductDeleteText);
     currentProductDeleteText.innerHTML = "Supprimer";
     currentProductDeleteText.addEventListener("click", (deleteEvent) => {
-        deleteEvent.preventDefault;
+        //deleteEvent.preventDefault;
         monPanier.splice(i, 1);
         localStorage.setItem('panier', JSON.stringify(monPanier));
-        location.reload();
-        checkCart(monPanier);
+        monPanier.reload
+        //location.reload();
+        dispCart(monPanier);
     });
 }
 
-
+// Les deux prochaines fonctions permettent d'afficher la quantité et le prix global.
+// les deux variables sont initialisées en haut de la page.
 function dispQuantity(totalQuantity) {
     let productTotalQuantity = document.getElementById('totalQuantity');
     productTotalQuantity.innerHTML = totalQuantity;
@@ -133,9 +135,10 @@ function dispPrice(totalPrice) {
     productTotalQuantity.innerHTML = totalPrice;
 }
 
-
-
-
+// Préparation des informations pour le passage de la commande.
+// A savoir les données du formulaire et le tableau des ID des produits.
+// Execution des 3 fonctions REGEX afin de vérifier les contenus des sasies.
+// Execution de l'envoi POST à l'API.
 function purchaseData(monPanier) {
     let makePurchaseBtn = document.getElementById("order");
     makePurchaseBtn.addEventListener("click", (makePurchase) => {
@@ -170,7 +173,7 @@ function purchaseData(monPanier) {
             })
                 .then(response => response.json())
                 .then(data => {
-                    localStorage.setItem('orderId', data.orderId);
+                    //localStorage.setItem('orderId', data.orderId);
                     document.location.href = 'confirmation.html?id=' + data.orderId;
                 });
         }
@@ -178,16 +181,19 @@ function purchaseData(monPanier) {
 }
 purchaseData(monPanier);
 
+// Les fonctions si après sont les REGEX
+// Chaque fonction vérifie le format de la saisie de l'utilisateur et renvoie la valeur du BOOL
+// En cas d'erreur, un message s'affiche en dessous du présent champs.
 function validateAddress() {
     var Address = document.getElementById('address').value;
     var AdressRGEX = /^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+/;
     const orderId = document.getElementById('addressErrorMsg');
-    console.log("toto");
+
 
     if (AdressRGEX.test(Address)) {
-        orderId.innerHTML = '';
+        orderId.innerText = '';
     } else {
-        orderId.innerHTML = 'Veuillez renseigner votre adresse postale correcte.';
+        orderId.innerText = 'Veuillez renseigner votre adresse postale correcte.';
     }
     return (AdressRGEX.test(Address));
 }
@@ -197,9 +203,9 @@ function validateEmail() {
     var emailRGEX = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
 
     if (emailRGEX.test(Email)) {
-        emailErrorMsg.innerHTML = '';
+        emailErrorMsg.innerText = '';
     } else {
-        emailErrorMsg.innerHTML = 'Veuillez renseigner votre email.';
+        emailErrorMsg.innerText = 'Veuillez renseigner votre email.';
     }
 
     return (emailRGEX.test(Email));
@@ -217,14 +223,14 @@ function validateStr() {
 
 
     if (strRGEX.test(lastName) || strRGEX.test(firstName) || strRGEX.test(city)) {
-        lastNameErr.innerHTML = '';
-        firstNameErr.innerHTML = '';
-        cityErr.innerHTML = '';
+        lastNameErr.innerText = '';
+        firstNameErr.innerText = '';
+        cityErr.innerText = '';
         return (true);
     } else {
-        lastNameErr.innerHTML = "Votre saisie n'est pas correct.";
-        firstNameErr.innerHTML = "Votre saisie n'est pas correct.";
-        cityErr.innerHTML = "Votre saisie n'est pas correct.";
+        lastNameErr.innerText = "Votre saisie n'est pas correct.";
+        firstNameErr.innerText = "Votre saisie n'est pas correct.";
+        cityErr.innerText = "Votre saisie n'est pas correct.";
 
         return (false);
     }

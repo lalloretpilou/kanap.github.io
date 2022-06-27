@@ -1,10 +1,13 @@
 getProducts();
 creationProducts();
 
+// demande à l'API la liste des produits
 async function getProducts() {
     let products = await fetch('http://localhost:3000/api/products');
     return products.json();
 }
+// Cette fcontion permet d'afficher les produits sur la page.
+// Grâce a for, nous pouvons facilement afficher une grande quantité de produits.
 
 async function creationProducts() {
     let result = await getProducts()
@@ -26,12 +29,12 @@ async function creationProducts() {
             let productName = document.createElement("h3");
             productArticle.appendChild(productName);
             productName.classList.add("productName");
-            productName.innerHTML = product[i].name;
+            productName.innerText = product[i].name;
 
             let productDescription = document.createElement("p");
             productArticle.appendChild(productDescription);
             productDescription.classList.add("productName");
-            productDescription.innerHTML = product[i].description;
+            productDescription.innerText = product[i].description;
         }
     })
     .catch (function(error){

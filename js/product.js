@@ -3,6 +3,7 @@ creationProducts()
 let imageSRC;
 let imageALT;
 
+//analyse l'URL de la page afin d'extraire l'ID du produit
 function getIdProduct() {
     var url = new URL(window.location.href);
     var productID = new URLSearchParams(url.search);
@@ -10,6 +11,7 @@ function getIdProduct() {
 
     return (id);
 }
+// Grâce a l'ID présent dans l'url, nous pouvons maintenant construire l'URL de requête à l'API afin de récolter les infos du produit
 async function getProducts() {
 
     var url = new URL(window.location.href);
@@ -21,6 +23,7 @@ async function getProducts() {
     return products.json();
 }
 
+// Création des elements de la page afin d'afficher les infos du produit
 async function creationProducts() {
     let result = await getProducts()
         .then((product) => {
@@ -32,13 +35,13 @@ async function creationProducts() {
             imageALT = product.altTxt;
 
             let name = document.getElementById("title");
-            name.innerHTML = product.name;
+            name.innerText = product.name;
 
             let price = document.getElementById("price");
-            price.innerHTML = product.price;
+            price.innerText = product.price;
 
             let description = document.getElementById("description");
-            description.innerHTML = product.description;
+            description.innerText = product.description;
 
             let inputSelectColor = document.getElementById("colors");
 
@@ -46,7 +49,7 @@ async function creationProducts() {
                 let colorOption = document.createElement("option");
                 let colorName = product.colors[i];
                 colorOption.setAttribute("value", colorName);
-                colorOption.innerHTML = colorName;
+                colorOption.innerText = colorName;
                 inputSelectColor.appendChild(colorOption);
             }
         })
@@ -55,9 +58,11 @@ async function creationProducts() {
         });
 }
 
+// Permet d'executer la fonction addCart quand on appui sur le button
 let addToCartBtn = document.getElementById("addToCart");
 addToCartBtn.addEventListener("click", addCart);
 
+// Cette fonction permet de savoir si le produit que veut ajouter l'utilisateur est deja dans le panier
 function checkDuplicateProduct(monPanier)
 {
     const result = monPanier.filter(article => article.id == getIdProduct()
@@ -70,9 +75,8 @@ function checkDuplicateProduct(monPanier)
         return false;
     }
 }
+// Cette fonction permet de mettre à jour la quantité du produit si celui ci est deja dans le panier
 function idExists(monPanier) {
-
-
         const result = monPanier.find(article => article.id == getIdProduct()
             && article.color == document.querySelector("#colors").value);
         if (result) {
@@ -81,7 +85,8 @@ function idExists(monPanier) {
             localStorage.setItem('panier', JSON.stringify(monPanier));
         }
 }
-
+// Cette fonction permet d'ajouter un produit dans le panier.
+// J'ai créée une structure qui regroupe toutes les informatiosn du produits à ajouter.
 function addCart() {
 
     let monPanier = JSON.parse(localStorage.getItem("panier"))
@@ -93,8 +98,7 @@ function addCart() {
         name: document.querySelector("#title").textContent,
         price: document.querySelector("#price").textContent,
         image: imageSRC,
-        imageAlt: imageALT
-
+        imageAlt: imageALT,
     };
     if (checkProductInput()) {
 
@@ -103,11 +107,9 @@ function addCart() {
                 let productCart = JSON.parse(localStorage.getItem("panier"));
                 monPanier.push(CurrentProduct);
                 localStorage.setItem("panier", JSON.stringify(monPanier));
-                alert("L'article a bien été ajouté dans le panier.");
             }
             else {
                 idExists(monPanier);
-                alert("La quantité a été mise à jour.");
             }
         }
 
@@ -115,7 +117,6 @@ function addCart() {
             monPanier = [];
             monPanier.push(CurrentProduct);
             localStorage.setItem("panier", JSON.stringify(monPanier));
-            alert("Votre article est dans votre panier !");
         }
     }
     else {
@@ -125,6 +126,7 @@ function addCart() {
 function clearcart() {
     monPanier = [];
 }
+// Permet de savoir si la couleur et la quantité ont ete renseignés avant de l'ajouter dans le panier
 function checkProductInput() {
 
     if (document.querySelector("#quantity").value != 0 &&
@@ -132,7 +134,6 @@ function checkProductInput() {
         return true;
     }
     else {
-        alert("Merci de completer les champs avant d'ajouter au panier.");
         return false
     }
 }
