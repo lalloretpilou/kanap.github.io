@@ -39,6 +39,7 @@ async function creationProducts() {
 
             let price = document.getElementById("price");
             price.innerText = product.price;
+            productPrice = product.price;
 
             let description = document.getElementById("description");
             description.innerText = product.description;
@@ -96,7 +97,7 @@ function addCart() {
         color: document.querySelector("#colors").value,
         quantity: document.querySelector("#quantity").value,
         name: document.querySelector("#title").textContent,
-        price: document.querySelector("#price").textContent,
+        //price: document.querySelector("#price").textContent,
         image: imageSRC,
         imageAlt: imageALT,
     };

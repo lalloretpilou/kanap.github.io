@@ -4,22 +4,29 @@ let monPanier = JSON.parse(localStorage.getItem("panier"));
 
 let totalQuantity = 0;
 let totalPrice = 0;
-
+let price = 0;
 dispCart(monPanier)
 
-function checkCart(monPanier) {
-
-    if (monPanier.length === 0) {
-        return false
-    }
-    else {
-        dispCart(monPanier)
-    }
-}
 // Cette fonction permet d'afficher le panier. 
 // J'ai séparé le processus en plusieurs fonctions afin de faciliter à la fois le codage et la maintenance du code.
-function dispCart(monPanier) {
+async function dispCart(monPanier) {
+    monPanier = JSON.parse(localStorage.getItem("panier"));
+    totalPrice = 0;
+    totalQuantity = 0;
+    price = 0;
 
+    let articleContainer = document.querySelector("#cart__items");
+
+    while (articleContainer.firstChild) {
+        articleContainer.removeChild(articleContainer.firstChild);
+    }
+
+    if (monPanier.length == 0)
+    {
+        document.getElementById("cart__items").innerText = `Votre panier est vide`;
+        dispQuantity(0)
+        dispPrice(0)
+    }
     for (let i = 0; i < monPanier.length; i++) {
 
         let productArticle = document.createElement("article");
@@ -27,17 +34,42 @@ function dispCart(monPanier) {
         productArticle.className = "cart__item";
         productArticle.setAttribute("data-id", monPanier[i].id);
 
-        setImageProduct(productArticle, i)
+        /*setImageProduct(productArticle, i)
         setHeaderProduct(productArticle, i)
+        setQuantityProduct(productArticle, i)
+        deleteProductButton(productArticle, i)*/
+
+
+        totalQuantity += parseInt(monPanier[i].quantity);
+
+        let result = await getProductPrice(monPanier[i].id)
+        .then((product) => {
+            totalPrice += parseInt(product.price) * monPanier[i].quantity;
+            price = product.price;
+        })
+
+        setImageProduct(productArticle, i)
+        setHeaderProduct(productArticle, i, price)
         setQuantityProduct(productArticle, i)
         deleteProductButton(productArticle, i)
 
-        totalQuantity += parseInt(monPanier[i].quantity);
-        totalPrice += parseInt(monPanier[i].price) * monPanier[i].quantity;
-        dispQuantity(totalQuantity)
-        dispPrice(totalPrice)
+        //console.log(getProductPrice(monPanier[i].id));
+        dispQuantity(totalQuantity);
+        dispPrice(totalPrice);
     }
 }
+
+async function getProductPrice(productId) 
+{
+    let urlProductDetails = 'http://localhost:3000/api/products/' + productId
+    let products = await fetch(urlProductDetails)
+    return products.json();
+    /*.then((product) => {
+        console.log(product.price);
+        return product.price;
+    });*/
+}
+
 // Affichage  de l'image et de la description du produit.
 function setImageProduct(product, i) {
 
@@ -51,7 +83,7 @@ function setImageProduct(product, i) {
     currentProductImage.alt = monPanier[i].imageAlt;
 }
 // Affichage des informations du produit. titre, couleur, prix.
-function setHeaderProduct(product, i) {
+function setHeaderProduct(product, i, price) {
     let currentProduct = document.createElement("div");
     product.appendChild(currentProduct);
     currentProduct.className = "cart__item__content";
@@ -68,7 +100,7 @@ function setHeaderProduct(product, i) {
     currentProductColor.innerHTML = "Couleurs: " + monPanier[i].color;
     let currentProductPrice = document.createElement("p");
     currentProductHeaderInfoDiv.appendChild(currentProductPrice);
-    currentProductPrice.innerHTML = monPanier[i].price + "€";
+    currentProductPrice.innerHTML = price + "€";
 }
 // Affichage de la quantité dans un champs de saisie afin de pouvoir la modifier.
 // La quantité actuelle prend la place du placeHolder
@@ -89,14 +121,9 @@ function setQuantityProduct(product, i) {
     currentProductQuantityInput.placeholder = monPanier[i].quantity;
 
     currentProductQuantityInput.addEventListener("change", (changeEvent) => {
-        console.log(monPanier[i].quantity)
-        console.log("change");
-
         monPanier[i].quantity = currentProductQuantityInput.value;
-        console.log(monPanier[i].quantity)
         localStorage.setItem('panier', JSON.stringify(monPanier));
-        location.reload();
-        checkCart(monPanier);
+        dispCart(monPanier);
     });
 
 }
@@ -114,11 +141,8 @@ function deleteProductButton(product, i) {
     deleteCurrentProduct.appendChild(currentProductDeleteText);
     currentProductDeleteText.innerHTML = "Supprimer";
     currentProductDeleteText.addEventListener("click", (deleteEvent) => {
-        //deleteEvent.preventDefault;
         monPanier.splice(i, 1);
         localStorage.setItem('panier', JSON.stringify(monPanier));
-        monPanier.reload
-        //location.reload();
         dispCart(monPanier);
     });
 }
@@ -173,7 +197,6 @@ function purchaseData(monPanier) {
             })
                 .then(response => response.json())
                 .then(data => {
-                    //localStorage.setItem('orderId', data.orderId);
                     document.location.href = 'confirmation.html?id=' + data.orderId;
                 });
         }
