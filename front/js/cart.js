@@ -123,6 +123,7 @@ function setQuantityProduct(product, i) {
         if (currentProductQuantityInput.value <= 100 && currentProductQuantityInput.value >= 1) {
             monPanier[i].quantity = currentProductQuantityInput.value;
             localStorage.setItem('panier', JSON.stringify(monPanier));
+            alert("Votre panier a bien été mis à jour.")
             dispCart(monPanier);
         }
     });
@@ -144,6 +145,7 @@ function deleteProductButton(product, i) {
     currentProductDeleteText.addEventListener("click", (deleteEvent) => {
         monPanier.splice(i, 1);
         localStorage.setItem('panier', JSON.stringify(monPanier));
+        alert("Votre Kanap n'est plus dans le panier !")
         dispCart(monPanier);
     });
 }
@@ -203,6 +205,7 @@ function purchaseData(monPanier) {
         }
     });
 }
+
 purchaseData(monPanier);
 
 // Les fonctions si après sont les REGEX
@@ -224,8 +227,9 @@ function validateAddress() {
 
 function validateEmail() {
     var Email = document.getElementById('email').value;
-    var emailRGEX = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
+    const emailRGEX = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,3})$/i;
 
+    console.log(emailRGEX.test(Email));
     if (emailRGEX.test(Email)) {
         emailErrorMsg.innerText = '';
     } else {

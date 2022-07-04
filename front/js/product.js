@@ -97,7 +97,6 @@ function addCart() {
         color: document.querySelector("#colors").value,
         quantity: document.querySelector("#quantity").value,
         name: document.querySelector("#title").textContent,
-        //price: document.querySelector("#price").textContent,
         image: imageSRC,
         imageAlt: imageALT,
     };
@@ -108,6 +107,7 @@ function addCart() {
                 let productCart = JSON.parse(localStorage.getItem("panier"));
                 monPanier.push(CurrentProduct);
                 localStorage.setItem("panier", JSON.stringify(monPanier));
+                alert("Votre Kanap est dans le panier !")
             }
             else {
                 idExists(monPanier);
@@ -118,6 +118,7 @@ function addCart() {
             monPanier = [];
             monPanier.push(CurrentProduct);
             localStorage.setItem("panier", JSON.stringify(monPanier));
+            alert("Votre Kanap est dans le panier !")
         }
     }
     else {
