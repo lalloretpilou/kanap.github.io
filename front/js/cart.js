@@ -21,8 +21,7 @@ async function dispCart(monPanier) {
         articleContainer.removeChild(articleContainer.firstChild);
     }
 
-    if (monPanier.length == 0)
-    {
+    if (monPanier.length == 0) {
         document.getElementById("cart__items").innerText = `Votre panier est vide`;
         dispQuantity(0)
         dispPrice(0)
@@ -43,10 +42,10 @@ async function dispCart(monPanier) {
         totalQuantity += parseInt(monPanier[i].quantity);
 
         let result = await getProductPrice(monPanier[i].id)
-        .then((product) => {
-            totalPrice += parseInt(product.price) * monPanier[i].quantity;
-            price = product.price;
-        })
+            .then((product) => {
+                totalPrice += parseInt(product.price) * monPanier[i].quantity;
+                price = product.price;
+            })
 
         setImageProduct(productArticle, i)
         setHeaderProduct(productArticle, i, price)
@@ -59,8 +58,7 @@ async function dispCart(monPanier) {
     }
 }
 
-async function getProductPrice(productId) 
-{
+async function getProductPrice(productId) {
     let urlProductDetails = 'http://localhost:3000/api/products/' + productId
     let products = await fetch(urlProductDetails)
     return products.json();
@@ -103,7 +101,7 @@ function setHeaderProduct(product, i, price) {
     currentProductPrice.innerHTML = price + "€";
 }
 // Affichage de la quantité dans un champs de saisie afin de pouvoir la modifier.
-// La quantité actuelle prend la place du placeHolder
+// La quantité actuelle prend la place du placeHolder. La valeur de la nouvelle quantité doit être comprise entre 1 et 100 inclus.
 function setQuantityProduct(product, i) {
     let currentProduct = document.createElement("div");
     product.appendChild(currentProduct);
@@ -116,14 +114,17 @@ function setQuantityProduct(product, i) {
     let currentProductQuantity = document.createElement("p");
     currentProductQuantityDiv.appendChild(currentProductQuantity);
     currentProductQuantity.innerHTML = "Qté :";
+
     let currentProductQuantityInput = document.createElement("input");
     currentProductQuantityDiv.appendChild(currentProductQuantityInput);
     currentProductQuantityInput.placeholder = monPanier[i].quantity;
 
     currentProductQuantityInput.addEventListener("change", (changeEvent) => {
-        monPanier[i].quantity = currentProductQuantityInput.value;
-        localStorage.setItem('panier', JSON.stringify(monPanier));
-        dispCart(monPanier);
+        if (currentProductQuantityInput.value <= 100 && currentProductQuantityInput.value >= 1) {
+            monPanier[i].quantity = currentProductQuantityInput.value;
+            localStorage.setItem('panier', JSON.stringify(monPanier));
+            dispCart(monPanier);
+        }
     });
 
 }
